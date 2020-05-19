@@ -5,6 +5,7 @@ import asyncio
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
+from discord.ext.commands import has_permissions, MissingPermissions
 
 from google_images_download import google_images_download
 
@@ -83,17 +84,27 @@ async def say(ctx, *, msg: str):
 
 
 @bot.command()
-async def img(ctx, name: str):
+async def img(ctx, name: str, nr: int):
     response = google_images_download.googleimagesdownload()
 
-    arguments = {'keywords': name, 'limit': 1, "print_urls": True}
+    arguments = {'keywords': name, 'limit': nr, "print_urls": True}
     paths = response.download(arguments)
-    print(paths[0][name][0])
+    print(paths)
 
-    file = discord.File(paths[0][name][0], filename=paths[0][name][0])
-    await ctx.send(name, file=file)
-    os.remove(paths[0][name][0])
-    os.remove("downloads\\" + name)
+    for i in range(0, nr):
+        file = discord.File(paths[0][name][i], filename=paths[0][name][i])
+        await ctx.send(name, file=file)
+        await asyncio.sleep(0)
+        os.remove(paths[0][name][i])
+
+
+@bot.command()
+@has_permissions(administrator=True)
+async def delete(ctx, nr: int):
+    await ctx.channel.purge(limit=nr)
+    msg = await ctx.send(f"am sters {nr} mesaje")
+    await asyncio.sleep(4)
+    await msg.delete()
 
 
 def check(message):
