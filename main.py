@@ -6,6 +6,8 @@ import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 
+from google_images_download import google_images_download
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -43,10 +45,10 @@ async def swear_command(ctx):
 
 @bot.command(name="guess", description="Ghiceste un numar intre 1 si 100")
 async def guess_command(context):
-    number = random.randint(1,101)
+    number = random.randint(1, 101)
     for guess in range(0, 5):
         await context.send('Pick a number between 1 and 100')
-        msg = await client.wait_for('message', check=check)
+        msg = await client.wait_for('Message')
         attempt = int(msg.content)
         if attempt > number:
             await context.send(str(guess) + ' guesses left...')
@@ -65,6 +67,36 @@ async def guess_command(context):
     else:
         await context.send("You didn't get it")
 
+
+@bot.command()
+async def fight(ctx, member: discord.Member):
+    nr = random.randint(1, 3)
+    if nr == 1:
+        await ctx.send(f'{ctx.author} l a batut pe {member}')
+    else:
+        await ctx.send(f'{member} l a batut pe {ctx.author}')
+
+
+@bot.command()
+async def say(ctx, *, msg: str):
+    await ctx.send(msg)
+
+
+@bot.command()
+async def img(ctx, name: str):
+    response = google_images_download.googleimagesdownload()
+
+    arguments = {'keywords': name, 'limit': 1, "print_urls": True}
+    paths = response.download(arguments)
+    print(paths[0][name][0])
+
+    file = discord.File(paths[0][name][0], filename=paths[0][name][0])
+    await ctx.send(name, file=file)
+    os.remove(paths[0][name][0])
+    os.remove('downloads')
+
+
+
 def check(message):
     try:
         int(message.content)
@@ -72,5 +104,5 @@ def check(message):
     except ValueError:
         return False
 
+
 bot.run(TOKEN)
-client.run(TOKEN)
