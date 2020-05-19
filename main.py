@@ -93,8 +93,7 @@ async def img(ctx, name: str):
     file = discord.File(paths[0][name][0], filename=paths[0][name][0])
     await ctx.send(name, file=file)
     os.remove(paths[0][name][0])
-    os.remove('downloads')
-
+    os.remove("downloads\\" + name)
 
 
 def check(message):
