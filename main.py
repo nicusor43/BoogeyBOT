@@ -2,6 +2,7 @@ import os
 import random
 import asyncio
 import youtube_dl
+import strawpoll
 
 import discord
 from dotenv import load_dotenv
@@ -69,17 +70,17 @@ async def swear_command(ctx):
 @bot.command(name="guess", description="Ghiceste un numar intre 1 si 100")
 async def guess_command(context):
     number = random.randint(1, 101)
-    for guess in range(0, 5):
+    for guess in range(0, 6):
         await context.send('Pick a number between 1 and 100')
-        msg = await client.wait_for('Message')
+        msg = await bot.wait_for('Message')
         attempt = int(msg.content)
         if attempt > number:
-            await context.send(str(guess) + ' guesses left...')
+            await context.send(str(5 - guess) + ' guesses left...')
             await asyncio.sleep(1)
             await context.send('Try going lower')
             await asyncio.sleep(1)
         elif attempt < number:
-            await context.send(str(guess) + ' guesses left...')
+            await context.send(str(5 - guess) + ' guesses left...')
             await asyncio.sleep(1)
             await context.send('Try going higher')
             await asyncio.sleep(1)
@@ -128,6 +129,17 @@ async def delete(ctx, nr: int):
     await asyncio.sleep(4)
     await msg.delete()
 
+'''
+@bot.command()
+async def poll(ctx,*, q: str):
+    await ctx.send("Zi ce raspunsuri vrei")
+    msg = await bot.wait_for('Message')
+    msg = str(msg.content).strip(" ")
+    sub_poll = strawpoll.Poll(title=q, options=msg)
+    api = strawpoll.API()
+    await api.submit_poll(poll=sub_poll)
+'''
+
 
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
@@ -173,8 +185,6 @@ class Music(commands.Cog):
 
         await ctx.send('Now playing: {}'.format(query))
 
-
-
     @commands.command()
     async def stream(self, ctx, *, url):
         """Streams from a url (same as yt, but doesn't predownload)"""
@@ -202,7 +212,6 @@ class Music(commands.Cog):
         await ctx.voice_client.disconnect()
 
     @play.before_invoke
-    @yt.before_invoke
     @stream.before_invoke
     async def ensure_voice(self, ctx):
         if ctx.voice_client is None:
