@@ -11,3 +11,9 @@ Un bot de discord.
 ! text in orange
 # text in gray
 ```
+
+```python
+    idk: int = 5
+    if idk > 4:
+        print("salut")
+```
