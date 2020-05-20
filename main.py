@@ -219,8 +219,14 @@ class Music(commands.Cog):
             else:
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
+            for item in os.listdir():
+                if item.endswith('.webm'):
+                    os.remove(item)
         elif ctx.voice_client.is_playing():
             ctx.voice_client.stop()
+            for item in os.listdir():
+                if item.endswith('.webm'):
+                    os.remove(item)
 
 
 @bot.event
