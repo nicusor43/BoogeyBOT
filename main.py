@@ -109,7 +109,7 @@ async def say(ctx, *, msg: str):
 async def img(ctx, name: str, nr: int):
     response = google_images_download.googleimagesdownload()
 
-    arguments = {'keywords': name, 'limit': nr, "print_urls": True}
+    arguments = {'keywords': name, 'limit': nr, "print_urls": True, "safe_search": True}
     paths = response.download(arguments)
     print(paths)
 
@@ -127,6 +127,7 @@ async def delete(ctx, nr: int):
     msg = await ctx.send(f"am sters {nr} mesaje")
     await asyncio.sleep(4)
     await msg.delete()
+
 
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
@@ -234,9 +235,6 @@ def check(message):
         return True
     except ValueError:
         return False
-
-
-
 
 
 bot.add_cog(Music(bot))
