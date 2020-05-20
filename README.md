@@ -12,8 +12,9 @@ Un bot de discord.
 # text in gray
 ```
 
-```python
-    idk: int = 5
-    if idk > 4:
-        print("salut")
+```cpp
+    int n = 5;
+    while(n != 4){
+        n = 2;
+    }
 ```
