@@ -1,16 +1,14 @@
+import asyncio
 import os
 import random
-import asyncio
-import youtube_dl
-import strawpoll
 
 import discord
-from dotenv import load_dotenv
+import youtube_dl
 from discord.ext import commands
-from discord.ext.commands import has_permissions, MissingPermissions, Bot
-from discord.voice_client import VoiceClient
-
+from discord.ext.commands import has_permissions
+from dotenv import load_dotenv
 from google_images_download import google_images_download
+from gtts import gTTS
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -129,6 +127,7 @@ async def delete(ctx, nr: int):
     await asyncio.sleep(4)
     await msg.delete()
 
+
 '''
 @bot.command()
 async def poll(ctx,*, q: str):
@@ -139,6 +138,49 @@ async def poll(ctx,*, q: str):
     api = strawpoll.API()
     await api.submit_poll(poll=sub_poll)
 '''
+
+
+@bot.command()
+@has_permissions(administrator=True)
+async def ban(ctx, member: discord.User = None, reason=None):
+    if member is None or member is ctx.message.author:
+        await ctx.channel.send("Nu poti sa ti dai ban singur")
+        return
+    if reason is None:
+        reason = "Esti naspa"
+    message = f"Ai fost banat {ctx.guild.name} pentru {reason}"
+    await member.send(message)
+    await ctx.guild.ban(member, reason=reason)
+    await ctx.channel.send(f"{member} e banat!")
+
+
+@bot.command()
+@has_permissions(administrator = True)
+async def unban(ctx, *, user=None):
+
+    try:
+        user = await commands.converter.UserConverter().convert(ctx, user)
+    except:
+        await ctx.send("Error: Nu a putut fi gasit")
+        return
+
+    try:
+        bans = tuple(ban_entry.user for ban_entry in await ctx.guild.bans())
+        if user in bans:
+            await ctx.guild.unban(user, reason="Moderatorul care a fct smecheria: "+ str(ctx.author))
+        else:
+            await ctx.send("Utilizatorul nu era banat")
+            return
+
+    except discord.Forbidden:
+        await ctx.send("I do not have permission to unban!")
+        return
+
+    except:
+        await ctx.send("fail")
+        return
+
+    await ctx.send(f"l am unbanat cu succes pe {user.mention}!")
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -177,6 +219,17 @@ class Music(commands.Cog):
         await channel.connect()
 
     @commands.command()
+    async def t2s(self, ctx, *, string: str):
+        for item in os.listdir():
+            if item.endswith('.mp3'):
+                os.remove(item)
+        audio = gTTS(text=string, lang='en', slow=False)
+        audio.save(f"{string}.mp3")
+        #ctx.voice_client.play(f"{string}.mp3")
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(f"{string}.mp3"))
+        ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
+
+    @commands.command()
     async def play(self, ctx, *, query):
         """Plays a file from the local filesystem"""
 
@@ -184,6 +237,7 @@ class Music(commands.Cog):
         ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 
         await ctx.send('Now playing: {}'.format(query))
+
 
     @commands.command()
     async def stream(self, ctx, *, url):
@@ -211,6 +265,7 @@ class Music(commands.Cog):
 
         await ctx.voice_client.disconnect()
 
+    @t2s.before_invoke
     @play.before_invoke
     @stream.before_invoke
     async def ensure_voice(self, ctx):
