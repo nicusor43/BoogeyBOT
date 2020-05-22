@@ -9,6 +9,7 @@ from discord.ext.commands import has_permissions
 from dotenv import load_dotenv
 from google_images_download import google_images_download
 from gtts import gTTS
+from googletrans import Translator
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -155,9 +156,8 @@ async def ban(ctx, member: discord.User = None, reason=None):
 
 
 @bot.command()
-@has_permissions(administrator = True)
+@has_permissions(administrator=True)
 async def unban(ctx, *, user=None):
-
     try:
         user = await commands.converter.UserConverter().convert(ctx, user)
     except:
@@ -167,7 +167,7 @@ async def unban(ctx, *, user=None):
     try:
         bans = tuple(ban_entry.user for ban_entry in await ctx.guild.bans())
         if user in bans:
-            await ctx.guild.unban(user, reason="Moderatorul care a fct smecheria: "+ str(ctx.author))
+            await ctx.guild.unban(user, reason="Moderatorul care a fct smecheria: " + str(ctx.author))
         else:
             await ctx.send("Utilizatorul nu era banat")
             return
@@ -181,6 +181,13 @@ async def unban(ctx, *, user=None):
         return
 
     await ctx.send(f"l am unbanat cu succes pe {user.mention}!")
+
+
+@bot.command()
+async def translate(ctx, source: str, destination: str, *, string: str):
+    translator = Translator()
+    answer = translator.translate(string, dest=destination, src=source)
+    await ctx.send(answer.text)
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -219,13 +226,13 @@ class Music(commands.Cog):
         await channel.connect()
 
     @commands.command()
-    async def t2s(self, ctx, *, string: str):
+    async def t2s(self, ctx, language, *, string: str):
         for item in os.listdir():
             if item.endswith('.mp3'):
                 os.remove(item)
-        audio = gTTS(text=string, lang='en', slow=False)
+        audio = gTTS(text=string, lang=language, slow=False)
         audio.save(f"{string}.mp3")
-        #ctx.voice_client.play(f"{string}.mp3")
+        # ctx.voice_client.play(f"{string}.mp3")
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(f"{string}.mp3"))
         ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 
@@ -237,7 +244,6 @@ class Music(commands.Cog):
         ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 
         await ctx.send('Now playing: {}'.format(query))
-
 
     @commands.command()
     async def stream(self, ctx, *, url):
