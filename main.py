@@ -231,9 +231,9 @@ class Music(commands.Cog):
             if item.endswith('.mp3'):
                 os.remove(item)
         audio = gTTS(text=string, lang=language, slow=False)
-        audio.save(f"{string}.mp3")
+        audio.save(f"temporar.mp3")
         # ctx.voice_client.play(f"{string}.mp3")
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(f"{string}.mp3"))
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(f"temporar.mp3"))
         ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 
     @commands.command()
