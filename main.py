@@ -6,13 +6,11 @@ import discord
 import youtube_dl
 from discord.ext import commands
 from discord.ext.commands import has_permissions
-from dotenv import load_dotenv
-from google_images_download import google_images_download
+from bing_image_downloader import downloader
 from gtts import gTTS
 from googletrans import Translator
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = "NzEwMTM2Nzg2OTQwMDY3OTIz.XrwEaw.P3I8CjDjaj_sEfMw2ttVwfN_bCU"
 
 client = discord.Client()
 
@@ -106,18 +104,16 @@ async def say(ctx, *, msg: str):
 
 
 @bot.command()
-async def img(ctx, name: str, nr: int):
-    response = google_images_download.googleimagesdownload()
-
-    arguments = {'keywords': name, 'limit': nr, "print_urls": True, "safe_search": True}
-    paths = response.download(arguments)
-    print(paths)
-
-    for i in range(0, nr):
-        file = discord.File(paths[0][name][i], filename=paths[0][name][i])
-        await ctx.send(name, file=file)
-        await asyncio.sleep(0)
-        os.remove(paths[0][name][i])
+async def img(ctx, nr: int, *, name: str,):
+    if nr > 10:
+        await ctx.send("Da mi ssd u tau daca esti asa smecher 1000 de poze nu vrei?")
+    else:
+        downloader.download(name, nr, output_dir='dataset', adult_filter_off=True, force_replace=False, timeout=60)
+        for file in os.listdir(f'dataset/{name}/'):
+            filename_str = f'dataset/{name}/{os.fsdecode(file)}'
+            file = discord.File(filename_str, filename = filename_str)
+            await ctx.send(file=file)
+            os.remove(filename_str)
 
 
 @bot.command()
@@ -237,15 +233,6 @@ class Music(commands.Cog):
         ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 
     @commands.command()
-    async def play(self, ctx, *, query):
-        """Plays a file from the local filesystem"""
-
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
-        ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
-
-        await ctx.send('Now playing: {}'.format(query))
-
-    @commands.command()
     async def stream(self, ctx, *, url):
         """Streams from a url (same as yt, but doesn't predownload)"""
 
@@ -272,7 +259,6 @@ class Music(commands.Cog):
         await ctx.voice_client.disconnect()
 
     @t2s.before_invoke
-    @play.before_invoke
     @stream.before_invoke
     async def ensure_voice(self, ctx):
         if ctx.voice_client is None:
