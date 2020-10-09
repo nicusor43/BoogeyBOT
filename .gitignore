@@ -1,4 +1,1 @@
-.env
-downloads/
-.webm
-.mp3
+dotenv
