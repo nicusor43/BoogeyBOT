@@ -10,7 +10,13 @@ from bing_image_downloader import downloader
 from gtts import gTTS
 from googletrans import Translator
 
-TOKEN = "NzEwMTM2Nzg2OTQwMDY3OTIz.XrwEaw.P3I8CjDjaj_sEfMw2ttVwfN_bCU"
+# Has nothing to do with a dotenv but oh well
+file = open('dotenv',mode='r')
+ 
+TOKEN = file.read()
+ 
+file.close()
+
 
 client = discord.Client()
 
