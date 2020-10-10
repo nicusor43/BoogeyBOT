@@ -23,16 +23,17 @@ client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
 ytdl_format_options = {
-    'format': 'bestaudio/best',
+    'format': 'bestaudio/   best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
     'nocheckcertificate': True,
-    'ignoreerrors': False,
+    'ignoreerrors': False,  
     'logtostderr': False,
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
+    'skip_download': True,
     'source_address': '0.0.0.0'  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
