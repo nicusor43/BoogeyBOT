@@ -23,7 +23,8 @@ client = discord.Client()
 bot = commands.Bot(command_prefix='!')
 
 ytdl_format_options = {
-    'format': 'bestaudio/   best',
+    'format': 'worstaudio',
+    'audioformat': 'm4a',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
